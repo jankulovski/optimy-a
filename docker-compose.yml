@@ -1,0 +1,47 @@
+services:
+  # Application Service (PHP-FPM)
+  app:
+    build:
+      args:
+        user: "${APP_USER:-user}"
+        uid: "${APP_USER_ID:-1000}"
+      context: ./
+      dockerfile: Dockerfile
+    image: acme-csr-app
+    container_name: acme_csr_app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+      # Ensure these match your .env file for the Docker environment
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /var/www/database/database.sqlite
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      # Persistent SQLite database
+      - ./database/database.sqlite:/var/www/database/database.sqlite
+    networks:
+      - acme_csr_network
+
+  # Web Server Service (Nginx)
+  webserver:
+    image: nginx:alpine
+    container_name: acme_csr_webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "${APP_PORT:-8000}:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - acme_csr_network
+    depends_on:
+      - app
+
+# Docker Networks
+networks:
+  acme_csr_network:
+    driver: bridge 

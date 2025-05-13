@@ -1,0 +1,16 @@
+includes:
+    - ./vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+    # Level 9 is the highest level
+    level: 8
+
+    ignoreErrors:
+        - '#Method App\\Models\\.*::.*should return .* but returns .*#'
+
+#    excludePaths:
+#        - ./*/_generated/*
+#
+#    checkMissingIterableValueType: false 
